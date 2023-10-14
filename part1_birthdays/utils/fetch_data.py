@@ -1,6 +1,6 @@
 from datetime import datetime
 from faker import Faker
-from utils.random_date import random_date
+from utils.random_gen import random_date
 import json
 
 
@@ -21,7 +21,7 @@ def fakerList(n=40):
 
 # data for local test from Json
 def dbList():
-    with open('./db/celebrities.json', 'r') as file:
+    with open('./db/users.json', 'r') as file:
         users_data = json.load(file)
     
     # Y-m-d str to date instance

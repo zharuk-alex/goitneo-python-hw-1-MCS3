@@ -1,10 +1,17 @@
 from datetime import datetime, timedelta
-from collections import defaultdict
-from utils.cli_text_format import cli_text_format
+from collections import defaultdict 
+from utils import cli_text_format as cli_f
 
 
-def get_birthdays_per_week(users:list, nextweek:bool=True, dict_output:bool=False) -> None or dict:
+def get_birthdays_per_week(
+        users:list, # list of dicts
+        nextweek:bool=True, # False - calc for 7 days / True - calc current weekend and next week Mon-Fri
+        dict_output:bool=False # True - return dict / False - print()
+    ) -> None | dict:
+
+    weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     today = datetime.now().date()
+    temp_result = defaultdict(list)
     result = defaultdict(list)
 
     if nextweek: # includes current weekends and Monday-Friday nextweek
@@ -17,7 +24,7 @@ def get_birthdays_per_week(users:list, nextweek:bool=True, dict_output:bool=Fals
     
     for user in users:
         if not isinstance(user["birthday"],datetime):
-            print(f"\n{cli_text_format.FAIL}Error >>> {cli_text_format.ENDC}Incorrect type \"birthday\" - not instance of datetime\n")
+            print(f"\n{cli_f.cli_text_format.FAIL}Error >>> {cli_f.cli_text_format.ENDC}Incorrect type \"birthday\" - not instance of datetime\n")
             continue 
 
         birthday = user["birthday"].date()
@@ -31,14 +38,18 @@ def get_birthdays_per_week(users:list, nextweek:bool=True, dict_output:bool=Fals
             birthday_this_year = birthday_this_year + timedelta(days=(7 - birthday_this_year.weekday()))
             
         weekday_name = birthday_this_year.strftime('%A')
-        result[weekday_name].append(f"{user['name']} - {user['birthday']}")
-    
+        temp_result[weekday_name].append(user['name'])
+
+    if not len(temp_result):
+        print(f"{cli_f.cli_text_format.WARNING}Nobody has a birthday{cli_f.cli_text_format.ENDC}")
+        return
+
+    result = { day:temp_result[day] for day in weekdays if len(temp_result[day])}
+
     if dict_output:
         return result
     
     if len(result):
         for key, val in result.items():
-            print(f"{cli_text_format.OKCYAN}{key}{cli_text_format.ENDC}: {', '.join(val)}")
-    else:
-        print("Nobody has a birthday")
+            print(f"{cli_f.cli_text_format.OKCYAN}{key}{cli_f.cli_text_format.ENDC}: {', '.join(val)}")
 # end get_birthdays_per_week
